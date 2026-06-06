@@ -1,5 +1,3 @@
-//estaba investigando y sale que .ts es typescript puro, para math and stuff de pura logica
-
 export type RootStackParamList = { //selfexplanatory no ocupo explicar esta parte
   Login: undefined;
   Register: undefined;
