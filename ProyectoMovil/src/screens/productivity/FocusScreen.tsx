@@ -1,0 +1,1 @@
+//la idea es una pantalla que te obligue a estar enfocado en la tarea

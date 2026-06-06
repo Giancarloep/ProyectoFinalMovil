@@ -1,0 +1,1 @@
+//estaba investigando y sale que .ts es typescript puro, para math and stuff de pura logica
