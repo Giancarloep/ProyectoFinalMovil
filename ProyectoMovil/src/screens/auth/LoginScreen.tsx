@@ -20,7 +20,6 @@ export const LoginScreen = ({ navigation }: any) => {
 
     let isValid = true;
 
-    // Validar el Email
     if (!isRequiredValid(email)) {
       setEmailError('El correo electrónico es obligatorio.');
       isValid = false;
@@ -28,8 +27,6 @@ export const LoginScreen = ({ navigation }: any) => {
       setEmailError('Por favor, ingresa un correo electrónico válido.');
       isValid = false;
     }
-
-    // Validar el Teléfono
     if (!isRequiredValid(phone)) {
       setPhoneError('El teléfono es obligatorio.');
       isValid = false;
@@ -37,24 +34,30 @@ export const LoginScreen = ({ navigation }: any) => {
       setPhoneError('El teléfono debe contener entre 8 y 10 dígitos numéricos.');
       isValid = false;
     }
-
-    // Validar la Contraseña
     if (!isRequiredValid(password)) {
       setPasswordError('La contraseña es obligatoria.');
       isValid = false;
     }
-
-    // SI TODO ESTÁ CORRECTO: DEBERIA tirar el mensaje de exito y navega a la pantalla principal aunque aun no esta creada
     if (isValid) {
-      Alert.alert('¡Éxito!', 'Iniciando sesión...');
-      navigation.replace('MainTabs'); 
+      Alert.alert('¡Éxito!', 'Iniciando sesión...', [
+        {
+          text: 'OK',
+          onPress: () => {
+            navigation.replace('Tabs', {
+              email: email,
+              phone: phone
+            });
+          }
+        }
+      ]);
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>EduFocus</Text>
+      <Text style={styles.title}>Placeholdername</Text>
       <Text style={styles.subtitle}>Plataforma de Productividad Estudiantil</Text>
+      
       <CustomInput
         label="Correo Electrónico"
         value={email}

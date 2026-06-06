@@ -1,21 +1,21 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { RootStackParamList } from './types';
-import { TabNavigator } from './TabNavigator';
-import { LoginScreen } from '../screens/auth/LoginScreen'; //aun no esta hecho
+import { LoginScreen } from '../screens/auth/LoginScreen';
+import { ProfileScreen } from '../screens/profile/ProfileScreen';
 
-const Stack = createStackNavigator<RootStackParamList>();
+const Stack = createStackNavigator();
 
 export const AppNavigator = () => {
   return (
-    <Stack.Navigator
-      initialRouteName="Login"
-      screenOptions={{
-        headerShown: false,
-      }}
+    <Stack.Navigator 
+      initialRouteName="Login" // Arranca en el Login
+      screenOptions={{ headerShown: false }}
     >
+      {/* 1. Pantalla de Login */}
       <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="MainTabs" component={TabNavigator} />
+      
+      {/* 2. Pantalla Principal Temporal (Apuntando directo al Perfil para poder salir) */}
+      <Stack.Screen name="Tabs" component={ProfileScreen} />
     </Stack.Navigator>
   );
 };
