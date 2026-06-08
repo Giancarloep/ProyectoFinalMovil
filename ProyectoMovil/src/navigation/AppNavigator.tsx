@@ -1,21 +1,25 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { LoginScreen } from '../screens/auth/LoginScreen';
-import { ProfileScreen } from '../screens/profile/ProfileScreen';
+import { RegisterScreen } from '../screens/auth/RegisterScreen';
+import { TabNavigator } from './TabNavigator';
+import { useAuth } from '../context/AuthContext';
 
 const Stack = createStackNavigator();
 
 export const AppNavigator = () => {
+  const { currentUser } = useAuth();
+
   return (
-    <Stack.Navigator 
-      initialRouteName="Login" // Arranca en el Login
-      screenOptions={{ headerShown: false }}
-    >
-      {/* 1. Pantalla de Login */}
-      <Stack.Screen name="Login" component={LoginScreen} />
-      
-      {/* 2. Pantalla Principal Temporal (Apuntando directo al Perfil para poder salir) */}
-      <Stack.Screen name="Tabs" component={ProfileScreen} />
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {currentUser ? (
+        <Stack.Screen name="MainTabs" component={TabNavigator} />
+      ) : (
+        <>
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Register" component={RegisterScreen} />
+        </>
+      )}
     </Stack.Navigator>
   );
 };

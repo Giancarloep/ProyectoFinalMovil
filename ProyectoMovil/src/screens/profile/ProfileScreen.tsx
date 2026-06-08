@@ -1,29 +1,21 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useAuth } from '../../context/AuthContext';
 
 export const ProfileScreen = () => {
-  const navigation = useNavigation<any>();
-  const route = useRoute<any>();
-  const userEmail = route.params?.email || "estudiante@unah.edu";
-  const userPhone = route.params?.phone || "Sin teléfono";
+  const { currentUser, logout } = useAuth();
+  const userEmail = currentUser?.email || "estudiante@unah.edu";
+  const userPhone = currentUser?.phone || "Sin teléfono";
+  const userName = currentUser?.name || "Usuario";
   const avatarLetter = userEmail.charAt(0).toUpperCase();
 
   const handleLogout = () => {
     Alert.alert(
       "Cerrar Sesión",
-      "¿Estás seguro de que quieres salir de EduFocus?",
+      "¿Estás seguro de que quieres salir?",
       [
         { text: "Cancelar", style: "cancel" },
-        {
-          text: "Sí, salir",
-          onPress: () => {
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'Login' }],
-            });
-          }
-        }
+        { text: "Sí, salir", onPress: () => logout() }
       ]
     );
   };
@@ -34,11 +26,12 @@ export const ProfileScreen = () => {
         <View style={styles.avatarPlaceholder}>
           <Text style={styles.avatarText}>{avatarLetter}</Text>
         </View>
+        <Text style={styles.userName}>{userName}</Text>
         <Text style={styles.userEmail}>{userEmail}</Text>
         <Text style={styles.userPhone}>Tel: {userPhone}</Text>
       </View>
       <View style={styles.infoCard}>
-        <Text style={styles.infoTitle}>Place holder name</Text>
+        <Text style={styles.infoTitle}>Placeholder name</Text>
         <Text style={styles.infoText}>Plataforma de Productividad Estudiantil</Text>
       </View>
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
@@ -73,10 +66,16 @@ const styles = StyleSheet.create({
     fontSize: 40,
     fontWeight: 'bold',
   },
-  userEmail: {
-    fontSize: 20,
+  userName: {
+    fontSize: 22,
     fontWeight: 'bold',
     color: '#1C1C1E',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  userEmail: {
+    fontSize: 16,
+    color: '#3A3A3C',
     textAlign: 'center',
   },
   userPhone: {

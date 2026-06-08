@@ -1,79 +1,40 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { MainTabParamList } from './types';
+import { RoomsScreen } from '../screens/productivity/RoomsScreen';
+import { FocusScreen } from '../screens/productivity/FocusScreen';
+import { FlashcardsScreen } from '../screens/productivity/FlashcardsScreen';
+import { ProfileScreen } from '../screens/profile/ProfileScreen';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
-//no son pantallas de las que tenemos son como placeholders para navegar
-const RoomsScreen = () => (
-  <View style={styles.center}>
-    <Text style={styles.text}>Salas de Estudio Virtuales</Text>
-  </View>
-);
 
-const FocusScreen = () => (
-  <View style={styles.center}>
-    <Text style={styles.text}>Temporizador de Enfoque</Text>
-  </View>
-);
-
-const FlashcardsScreen = () => (
-  <View style={styles.center}>
-    <Text style={styles.text}>Tarjetas de Repaso</Text>
-  </View>
-);
-
-const ProfileScreen = () => (
-  <View style={styles.center}>
-    <Text style={styles.text}>Perfil de Usuario</Text>
-  </View>
-);
+const tabIcons: Record<keyof MainTabParamList, keyof typeof Ionicons.glyphMap> = {
+  Profile: 'person',
+  Rooms: 'people',
+  Focus: 'timer',
+  Flashcards: 'card',
+};
 
 export const TabNavigator = () => {
   return (
     <Tab.Navigator
-      screenOptions={{
-        tabBarActiveTintColor: '#007AFF',     // Azul para la pestaña que estás viendo
-        tabBarInactiveTintColor: '#8E8E93',   // Gris para las demás
+      initialRouteName="Profile"
+      screenOptions={({ route }) => ({
+        tabBarActiveTintColor: '#007AFF',
+        tabBarInactiveTintColor: '#8E8E93',
         headerStyle: { backgroundColor: '#007AFF' },
         headerTintColor: '#FFFFFF',
         headerTitleAlign: 'center',
-      }}
+        tabBarIcon: ({ color, size }) => (
+          <Ionicons name={tabIcons[route.name]} size={size} color={color} />
+        ),
+      })}
     >
-      <Tab.Screen 
-        name="Rooms" 
-        component={RoomsScreen} 
-        options={{ title: 'Salas' }} 
-      />
-      <Tab.Screen 
-        name="Focus" 
-        component={FocusScreen} 
-        options={{ title: 'Enfoque' }} 
-      />
-      <Tab.Screen 
-        name="Flashcards" 
-        component={FlashcardsScreen} 
-        options={{ title: 'Repaso' }} 
-      />
-      <Tab.Screen 
-        name="Profile" 
-        component={ProfileScreen} 
-        options={{ title: 'Perfil' }} 
-      />
+      <Tab.Screen name="Rooms" component={RoomsScreen} options={{ title: 'Salas' }} />
+      <Tab.Screen name="Focus" component={FocusScreen} options={{ title: 'Enfoque' }} />
+      <Tab.Screen name="Flashcards" component={FlashcardsScreen} options={{ title: 'Repaso' }} />
+      <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: 'Perfil' }} />
     </Tab.Navigator>
   );
 };
-
-const styles = StyleSheet.create({
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5F5F5',
-  },
-  text: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333333',
-  },
-});

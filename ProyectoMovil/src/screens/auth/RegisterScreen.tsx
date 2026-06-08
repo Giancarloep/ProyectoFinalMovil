@@ -1,11 +1,12 @@
-// src/screens/auth/RegisterScreen.tsx
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
 import { CustomInput } from '../../components/CustomInput';
 import { CustomButton } from '../../components/CustomButton';
 import { isRequiredValid, isEmailValid, isPhoneValid } from '../../utils/validations';
+import { useAuth } from '../../context/AuthContext';
 
 export const RegisterScreen = ({ navigation }: any) => {
+  const { register } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -66,11 +67,16 @@ export const RegisterScreen = ({ navigation }: any) => {
       setLoading(true);
       setTimeout(() => {
         setLoading(false);
-        Alert.alert(
-          '¡Cuenta creada!',
-          `Bienvenido a EduFocus, ${name}. Ya puedes iniciar sesión.`,
-          [{ text: 'OK', onPress: () => navigation.navigate('Login') }]
-        );
+        const success = register(name, email, phone, password);
+        if (success) {
+          Alert.alert(
+            '¡Cuenta creada!',
+            `Bienvenido a EduFocus, ${name}. Ya puedes iniciar sesión.`,
+            [{ text: 'OK', onPress: () => navigation.navigate('Login') }]
+          );
+        } else {
+          Alert.alert('Error', 'Este correo electrónico ya está registrado.');
+        }
       }, 1000);
     }
   };

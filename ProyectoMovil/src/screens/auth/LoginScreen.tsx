@@ -1,11 +1,12 @@
-// src/screens/LoginScreen.tsx
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, Alert } from 'react-native';
+import { View, Text, StyleSheet, Alert } from 'react-native';
 import { CustomInput } from '../../components/CustomInput';
 import { CustomButton } from '../../components/CustomButton';
 import { isRequiredValid, isEmailValid, isPhoneValid } from '../../utils/validations';
+import { useAuth } from '../../context/AuthContext';
 
 export const LoginScreen = ({ navigation }: any) => {
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
@@ -39,17 +40,10 @@ export const LoginScreen = ({ navigation }: any) => {
       isValid = false;
     }
     if (isValid) {
-      Alert.alert('¡Éxito!', 'Iniciando sesión...', [
-        {
-          text: 'OK',
-          onPress: () => {
-            navigation.replace('Tabs', {
-              email: email,
-              phone: phone
-            });
-          }
-        }
-      ]);
+      const success = login(email, phone, password);
+      if (!success) {
+        Alert.alert('Error', 'Credenciales incorrectas. ¿No tienes cuenta? Regístrate primero.');
+      }
     }
   };
 
@@ -86,6 +80,10 @@ export const LoginScreen = ({ navigation }: any) => {
       />
 
       <CustomButton title="Iniciar Sesión" onPress={handleLogin} />
+      <CustomButton
+        title="¿No tienes cuenta? Regístrate"
+        onPress={() => navigation.navigate('Register')}
+      />
     </View>
   );
 };
