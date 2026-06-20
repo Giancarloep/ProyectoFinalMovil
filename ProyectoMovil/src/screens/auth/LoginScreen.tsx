@@ -49,7 +49,7 @@ export const LoginScreen = ({ navigation }: any) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Placeholdername</Text>
+      <Text style={styles.title}>Study guide Resolution</Text>
       <Text style={styles.subtitle}>Plataforma de Productividad Estudiantil</Text>
       
       <CustomInput

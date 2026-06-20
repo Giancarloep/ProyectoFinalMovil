@@ -71,7 +71,7 @@ export const RegisterScreen = ({ navigation }: any) => {
         if (success) {
           Alert.alert(
             '¡Cuenta creada!',
-            `Bienvenido a EduFocus, ${name}. Ya puedes iniciar sesión.`,
+            `Bienvenido a Study guide Resolution, ${name}. Ya puedes iniciar sesión.`,
             [{ text: 'OK', onPress: () => navigation.navigate('Login') }]
           );
         } else {
@@ -83,7 +83,7 @@ export const RegisterScreen = ({ navigation }: any) => {
 
   return (
     <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-      <Text style={styles.title}>EduFocus</Text>
+      <Text style={styles.title}>Study guide Resolution</Text>
       <Text style={styles.subtitle}>Crea tu cuenta de estudiante</Text>
 
       <CustomInput

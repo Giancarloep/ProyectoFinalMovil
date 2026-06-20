@@ -58,7 +58,7 @@ export const FocusScreen = () => {
 
       {/* Reloj principal */}
       <FocusClock
-        durationMinutes={mode === 'focus' ? 25 : 5}
+        durationMinutes={mode === 'focus' ? 1 : 1}
         mode={mode}
         onComplete={handleSessionEnd}
       />

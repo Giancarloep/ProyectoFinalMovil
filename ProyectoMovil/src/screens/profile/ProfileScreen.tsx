@@ -31,7 +31,7 @@ export const ProfileScreen = () => {
         <Text style={styles.userPhone}>Tel: {userPhone}</Text>
       </View>
       <View style={styles.infoCard}>
-        <Text style={styles.infoTitle}>Placeholder name</Text>
+        <Text style={styles.infoTitle}>Study guide Resolution</Text>
         <Text style={styles.infoText}>Plataforma de Productividad Estudiantil</Text>
       </View>
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
