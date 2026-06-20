@@ -1,13 +1,20 @@
-// src/screens/productivity/FocusScreen.tsx
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { FocusClock } from '../../components/FocusClock';
 
 type Mode = 'focus' | 'break';
 
+const MIN_MINUTES = 1;
+const MAX_MINUTES = 120;
+
 export const FocusScreen = () => {
   const [mode, setMode] = useState<Mode>('focus');
   const [sessionsCompleted, setSessionsCompleted] = useState(0);
+  const [focusMinutes, setFocusMinutes] = useState(25);
+  const [breakMinutes, setBreakMinutes] = useState(5);
+  const [started, setStarted] = useState(false);
+
+  const isLocked = sessionsCompleted > 0;
 
   const handleSessionEnd = () => {
     if (mode === 'focus') {
@@ -18,29 +25,76 @@ export const FocusScreen = () => {
     }
   };
 
-  return (
-    <View style={styles.container}>
-      {/* Selector de modo */}
-      <View style={styles.modeSelector}>
+  const adjustMinutes = (
+    setter: React.Dispatch<React.SetStateAction<number>>,
+    delta: number
+  ) => {
+    setter(prev => Math.min(MAX_MINUTES, Math.max(MIN_MINUTES, prev + delta)));
+  };
+
+  if (!started) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.setupTitle}>Configura tu sesión</Text>
+
+        <View style={styles.setupRow}>
+          <Text style={styles.setupLabel}>Tiempo de enfoque</Text>
+          <View style={styles.stepper}>
+            <TouchableOpacity
+              style={styles.stepBtn}
+              onPress={() => adjustMinutes(setFocusMinutes, -5)}
+            >
+              <Text style={styles.stepBtnText}>−</Text>
+            </TouchableOpacity>
+            <Text style={styles.stepValue}>{focusMinutes} min</Text>
+            <TouchableOpacity
+              style={styles.stepBtn}
+              onPress={() => adjustMinutes(setFocusMinutes, 5)}
+            >
+              <Text style={styles.stepBtnText}>+</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={styles.setupRow}>
+          <Text style={styles.setupLabel}>Tiempo de descanso</Text>
+          <View style={styles.stepper}>
+            <TouchableOpacity
+              style={styles.stepBtn}
+              onPress={() => adjustMinutes(setBreakMinutes, -1)}
+            >
+              <Text style={styles.stepBtnText}>−</Text>
+            </TouchableOpacity>
+            <Text style={styles.stepValue}>{breakMinutes} min</Text>
+            <TouchableOpacity
+              style={styles.stepBtn}
+              onPress={() => adjustMinutes(setBreakMinutes, 1)}
+            >
+              <Text style={styles.stepBtnText}>+</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
         <TouchableOpacity
-          style={[styles.modeBtn, mode === 'focus' && styles.modeBtnActive]}
-          onPress={() => setMode('focus')}
+          style={styles.startBtn}
+          onPress={() => setStarted(true)}
         >
-          <Text style={[styles.modeBtnText, mode === 'focus' && styles.modeBtnTextActive]}>
-            Enfoque
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.modeBtn, mode === 'break' && styles.modeBtnActive]}
-          onPress={() => setMode('break')}
-        >
-          <Text style={[styles.modeBtnText, mode === 'break' && styles.modeBtnTextActive]}>
-            Descanso
-          </Text>
+          <Text style={styles.startBtnText}>Comenzar</Text>
         </TouchableOpacity>
       </View>
+    );
+  }
 
-      {/* Indicador de sesiones */}
+  return (
+    <View style={styles.container}>
+      {isLocked && (
+        <View style={styles.lockedBanner}>
+          <Text style={styles.lockedBannerText}>
+            Tiempos bloqueados — reinicia la app para cambiar
+          </Text>
+        </View>
+      )}
+
       <View style={styles.sessionsRow}>
         {[...Array(4)].map((_, i) => (
           <View
@@ -56,14 +110,12 @@ export const FocusScreen = () => {
         {sessionsCompleted} {sessionsCompleted === 1 ? 'sesión completada' : 'sesiones completadas'}
       </Text>
 
-      {/* Reloj principal */}
       <FocusClock
-        durationMinutes={mode === 'focus' ? 1 : 1}
+        durationMinutes={mode === 'focus' ? focusMinutes : breakMinutes}
         mode={mode}
         onComplete={handleSessionEnd}
       />
 
-      {/* Tip de enfoque */}
       <View style={styles.tipCard}>
         <Text style={styles.tipTitle}>
           {mode === 'focus' ? '🎯 Modo Enfoque' : '☕ Modo Descanso'}
@@ -86,30 +138,82 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingHorizontal: 20,
   },
-  modeSelector: {
-    flexDirection: 'row',
-    backgroundColor: '#E5E5EA',
-    borderRadius: 10,
-    padding: 4,
-    width: '80%',
-    marginBottom: 20,
+  setupTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#1C1C1E',
+    marginBottom: 30,
+    marginTop: 40,
   },
-  modeBtn: {
-    flex: 1,
-    paddingVertical: 8,
-    borderRadius: 8,
+  setupRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  setupLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1C1C1E',
+  },
+  stepper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  stepBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#007AFF',
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  modeBtnActive: {
-    backgroundColor: '#007AFF',
-  },
-  modeBtnText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#8E8E93',
-  },
-  modeBtnTextActive: {
+  stepBtnText: {
     color: '#FFFFFF',
+    fontSize: 22,
+    fontWeight: '700',
+    lineHeight: 24,
+  },
+  stepValue: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1C1C1E',
+    minWidth: 60,
+    textAlign: 'center',
+  },
+  startBtn: {
+    backgroundColor: '#007AFF',
+    paddingVertical: 16,
+    paddingHorizontal: 60,
+    borderRadius: 12,
+    marginTop: 20,
+  },
+  startBtnText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  lockedBanner: {
+    backgroundColor: '#8E8E93',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  lockedBannerText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '600',
   },
   sessionsRow: {
     flexDirection: 'row',
