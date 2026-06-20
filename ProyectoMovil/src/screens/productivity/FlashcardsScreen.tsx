@@ -1,8 +1,8 @@
-// src/screens/productivity/FlashcardsScreen.tsx
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, Alert
 } from 'react-native';
+import { useTheme } from '../../context/ThemeContext';
 
 type Flashcard = {
   id: string;
@@ -20,6 +20,7 @@ const MOCK_CARDS: Flashcard[] = [
 ];
 
 export const FlashcardsScreen = () => {
+  const { colors } = useTheme();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [known, setKnown] = useState(0);
@@ -56,44 +57,40 @@ export const FlashcardsScreen = () => {
   const progress = ((currentIndex) / MOCK_CARDS.length) * 100;
 
   return (
-    <View style={styles.container}>
-      {/* Barra de progreso */}
+    <View style={[styles.container, { backgroundColor: colors.surface }]}>
       <View style={styles.progressContainer}>
-        <View style={styles.progressBar}>
-          <View style={[styles.progressFill, { width: `${progress}%` }]} />
+        <View style={[styles.progressBar, { backgroundColor: colors.border }]}>
+          <View style={[styles.progressFill, { width: `${progress}%`, backgroundColor: colors.primary }]} />
         </View>
-        <Text style={styles.progressText}>
+        <Text style={[styles.progressText, { color: colors.textTertiary }]}>
           {currentIndex + 1} / {MOCK_CARDS.length}
         </Text>
       </View>
 
-      {/* Materia */}
-      <View style={styles.subjectBadge}>
-        <Text style={styles.subjectText}>{currentCard.subject}</Text>
+      <View style={[styles.subjectBadge, { backgroundColor: colors.badgeBg }]}>
+        <Text style={[styles.subjectText, { color: colors.badgeText }]}>{currentCard.subject}</Text>
       </View>
 
-      {/* Tarjeta */}
-      <TouchableOpacity style={styles.card} onPress={handleFlip} activeOpacity={0.9}>
-        <Text style={styles.cardLabel}>{isFlipped ? 'Respuesta' : 'Pregunta'}</Text>
-        <Text style={styles.cardText}>
+      <TouchableOpacity style={[styles.card, { backgroundColor: colors.card }]} onPress={handleFlip} activeOpacity={0.9}>
+        <Text style={[styles.cardLabel, { color: colors.primary }]}>{isFlipped ? 'Respuesta' : 'Pregunta'}</Text>
+        <Text style={[styles.cardText, { color: colors.text }]}>
           {isFlipped ? currentCard.answer : currentCard.question}
         </Text>
-        <Text style={styles.tapHint}>
+        <Text style={[styles.tapHint, { color: colors.inactive }]}>
           {isFlipped ? '' : 'Toca para ver la respuesta'}
         </Text>
       </TouchableOpacity>
 
-      {/* Botones de respuesta (solo visibles al voltear) */}
       {isFlipped && (
         <View style={styles.answerButtons}>
           <TouchableOpacity
-            style={[styles.answerBtn, styles.unknownBtn]}
+            style={[styles.answerBtn, { backgroundColor: colors.danger }]}
             onPress={() => handleAnswer(false)}
           >
             <Text style={styles.answerBtnText}>✗ A repasar</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.answerBtn, styles.knownBtn]}
+            style={[styles.answerBtn, { backgroundColor: colors.success }]}
             onPress={() => handleAnswer(true)}
           >
             <Text style={styles.answerBtnText}>✓ Lo sé</Text>
@@ -101,10 +98,9 @@ export const FlashcardsScreen = () => {
         </View>
       )}
 
-      {/* Contadores */}
       <View style={styles.counters}>
-        <Text style={styles.counterKnown}>✓ {known}</Text>
-        <Text style={styles.counterUnknown}>✗ {unknown}</Text>
+        <Text style={[styles.counterKnown, { color: colors.success }]}>✓ {known}</Text>
+        <Text style={[styles.counterUnknown, { color: colors.danger }]}>✗ {unknown}</Text>
       </View>
     </View>
   );
@@ -113,7 +109,6 @@ export const FlashcardsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
     alignItems: 'center',
     padding: 20,
   },
@@ -127,38 +122,32 @@ const styles = StyleSheet.create({
   progressBar: {
     flex: 1,
     height: 8,
-    backgroundColor: '#E5E5EA',
     borderRadius: 4,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#007AFF',
     borderRadius: 4,
   },
   progressText: {
     fontSize: 13,
-    color: '#8E8E93',
     fontWeight: '600',
     minWidth: 40,
     textAlign: 'right',
   },
   subjectBadge: {
-    backgroundColor: '#E3F0FF',
     paddingHorizontal: 14,
     paddingVertical: 5,
     borderRadius: 12,
     marginBottom: 20,
   },
   subjectText: {
-    color: '#007AFF',
     fontWeight: '600',
     fontSize: 13,
   },
   card: {
     width: '100%',
     minHeight: 220,
-    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 24,
     justifyContent: 'center',
@@ -173,21 +162,18 @@ const styles = StyleSheet.create({
   cardLabel: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#007AFF',
     textTransform: 'uppercase',
     letterSpacing: 1,
     marginBottom: 16,
   },
   cardText: {
     fontSize: 18,
-    color: '#1C1C1E',
     textAlign: 'center',
     lineHeight: 26,
     fontWeight: '500',
   },
   tapHint: {
     fontSize: 12,
-    color: '#C7C7CC',
     marginTop: 20,
   },
   answerButtons: {
@@ -202,12 +188,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
   },
-  knownBtn: {
-    backgroundColor: '#34C759',
-  },
-  unknownBtn: {
-    backgroundColor: '#FF3B30',
-  },
   answerBtnText: {
     color: '#FFFFFF',
     fontWeight: '700',
@@ -220,11 +200,9 @@ const styles = StyleSheet.create({
   counterKnown: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#34C759',
   },
   counterUnknown: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#FF3B30',
   },
 });

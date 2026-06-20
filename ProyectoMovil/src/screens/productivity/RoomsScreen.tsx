@@ -1,10 +1,9 @@
-// src/screens/productivity/RoomsScreen.tsx
 import React, { useState } from 'react';
 import {
-  View, Text, StyleSheet, FlatList,
-  TouchableOpacity, Alert
+  View, Text, StyleSheet, FlatList, Alert
 } from 'react-native';
 import { StudyRoom } from '../../components/StudyRoom';
+import { useTheme } from '../../context/ThemeContext';
 
 type Room = {
   id: string;
@@ -23,12 +22,12 @@ const MOCK_ROOMS: Room[] = [
 ];
 
 export const RoomsScreen = () => {
+  const { colors } = useTheme();
   const [rooms, setRooms] = useState<Room[]>(MOCK_ROOMS);
   const [joinedRoom, setJoinedRoom] = useState<string | null>(null);
 
   const handleJoin = (room: Room) => {
     if (joinedRoom === room.id) {
-      // Salir de la sala
       setRooms(prev =>
         prev.map(r => r.id === room.id ? { ...r, participants: r.participants - 1 } : r)
       );
@@ -38,7 +37,6 @@ export const RoomsScreen = () => {
       Alert.alert('Sala llena', 'Esta sala ya alcanzó su capacidad máxima.');
     } else {
       if (joinedRoom) {
-        // Salir de la sala anterior
         setRooms(prev =>
           prev.map(r => r.id === joinedRoom ? { ...r, participants: r.participants - 1 } : r)
         );
@@ -54,11 +52,11 @@ export const RoomsScreen = () => {
   const availableCount = rooms.filter(r => r.participants < r.capacity).length;
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Salas de Estudio</Text>
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>{availableCount} disponibles</Text>
+    <View style={[styles.container, { backgroundColor: colors.surface }]}>
+      <View style={[styles.header, { backgroundColor: colors.headerBg }]}>
+        <Text style={[styles.headerTitle, { color: colors.headerText }]}>Salas de Estudio</Text>
+        <View style={[styles.badge, { backgroundColor: 'rgba(255,255,255,0.25)' }]}>
+          <Text style={[styles.badgeText, { color: colors.headerText }]}>{availableCount} disponibles</Text>
         </View>
       </View>
 
@@ -74,7 +72,7 @@ export const RoomsScreen = () => {
           />
         )}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>No hay salas disponibles.</Text>
+          <Text style={[styles.emptyText, { color: colors.textTertiary }]}>No hay salas disponibles.</Text>
         }
       />
     </View>
@@ -84,10 +82,8 @@ export const RoomsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
   },
   header: {
-    backgroundColor: '#007AFF',
     paddingHorizontal: 20,
     paddingVertical: 16,
     flexDirection: 'row',
@@ -97,16 +93,13 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#FFFFFF',
   },
   badge: {
-    backgroundColor: 'rgba(255,255,255,0.25)',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
   },
   badgeText: {
-    color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '600',
   },
@@ -116,7 +109,6 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     textAlign: 'center',
-    color: '#8E8E93',
     marginTop: 40,
     fontSize: 16,
   },

@@ -4,9 +4,11 @@ import { CustomInput } from '../../components/CustomInput';
 import { CustomButton } from '../../components/CustomButton';
 import { isRequiredValid, isEmailValid, isPhoneValid } from '../../utils/validations';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 
 export const LoginScreen = ({ navigation }: any) => {
   const { login } = useAuth();
+  const { colors } = useTheme();
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
@@ -48,10 +50,10 @@ export const LoginScreen = ({ navigation }: any) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Study guide Resolution</Text>
-      <Text style={styles.subtitle}>Plataforma de Productividad Estudiantil</Text>
-      
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <Text style={[styles.title, { color: colors.primary }]}>Study guide Resolution</Text>
+      <Text style={[styles.subtitle, { color: colors.textTertiary }]}>Plataforma de Productividad Estudiantil</Text>
+
       <CustomInput
         label="Correo Electrónico"
         value={email}
@@ -93,7 +95,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
     padding: 24,
   },
   logoImage: {
@@ -104,11 +105,9 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#007AFF',
   },
   subtitle: {
     fontSize: 14,
-    color: '#666',
     marginBottom: 25,
   },
 });

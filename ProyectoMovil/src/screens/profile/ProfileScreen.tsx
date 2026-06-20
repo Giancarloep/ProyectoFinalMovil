@@ -1,9 +1,11 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Switch } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 
 export const ProfileScreen = () => {
   const { currentUser, logout } = useAuth();
+  const { isDark, colors, toggleTheme } = useTheme();
   const userEmail = currentUser?.email || "estudiante@unah.edu";
   const userPhone = currentUser?.phone || "Sin teléfono";
   const userName = currentUser?.name || "Usuario";
@@ -21,20 +23,37 @@ export const ProfileScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.profileHeader}>
-        <View style={styles.avatarPlaceholder}>
+        <View style={[styles.avatarPlaceholder, { backgroundColor: colors.primary }]}>
           <Text style={styles.avatarText}>{avatarLetter}</Text>
         </View>
-        <Text style={styles.userName}>{userName}</Text>
-        <Text style={styles.userEmail}>{userEmail}</Text>
-        <Text style={styles.userPhone}>Tel: {userPhone}</Text>
+        <Text style={[styles.userName, { color: colors.text }]}>{userName}</Text>
+        <Text style={[styles.userEmail, { color: colors.textSecondary }]}>{userEmail}</Text>
+        <Text style={[styles.userPhone, { color: colors.textTertiary }]}>Tel: {userPhone}</Text>
       </View>
-      <View style={styles.infoCard}>
-        <Text style={styles.infoTitle}>Study guide Resolution</Text>
-        <Text style={styles.infoText}>Plataforma de Productividad Estudiantil</Text>
+
+      <View style={[styles.infoCard, { backgroundColor: colors.card }]}>
+        <Text style={[styles.infoTitle, { color: colors.text }]}>Study guide Resolution</Text>
+        <Text style={[styles.infoText, { color: colors.textSecondary }]}>Plataforma de Productividad Estudiantil</Text>
       </View>
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+
+      <View style={[styles.themeRow, { backgroundColor: colors.card }]}>
+        <View>
+          <Text style={[styles.themeLabel, { color: colors.text }]}>Modo Oscuro</Text>
+          <Text style={[styles.themeHint, { color: colors.textTertiary }]}>
+            {isDark ? 'Activado' : 'Desactivado'}
+          </Text>
+        </View>
+        <Switch
+          value={isDark}
+          onValueChange={toggleTheme}
+          trackColor={{ false: colors.border, true: colors.primary }}
+          thumbColor={isDark ? colors.headerText : colors.textTertiary}
+        />
+      </View>
+
+      <TouchableOpacity style={[styles.logoutButton, { backgroundColor: colors.danger }]} onPress={handleLogout}>
         <Text style={styles.logoutButtonText}>Cerrar Sesión</Text>
       </TouchableOpacity>
     </View>
@@ -44,7 +63,6 @@ export const ProfileScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
     padding: 20,
     justifyContent: 'space-between',
   },
@@ -56,7 +74,6 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#007AFF',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 15,
@@ -69,22 +86,18 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#1C1C1E',
     textAlign: 'center',
     marginBottom: 4,
   },
   userEmail: {
     fontSize: 16,
-    color: '#3A3A3C',
     textAlign: 'center',
   },
   userPhone: {
     fontSize: 16,
-    color: '#8E8E93',
     marginTop: 5,
   },
   infoCard: {
-    backgroundColor: '#F2F2F7',
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
@@ -92,15 +105,27 @@ const styles = StyleSheet.create({
   infoTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#1C1C1E',
   },
   infoText: {
     fontSize: 14,
-    color: '#3A3A3C',
     marginTop: 5,
   },
+  themeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderRadius: 10,
+  },
+  themeLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  themeHint: {
+    fontSize: 13,
+    marginTop: 2,
+  },
   logoutButton: {
-    backgroundColor: '#FF3B30',
     paddingVertical: 15,
     borderRadius: 10,
     alignItems: 'center',

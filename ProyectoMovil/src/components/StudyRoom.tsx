@@ -1,6 +1,6 @@
-// src/components/StudyRoom.tsx
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
 
 interface StudyRoomProps {
   room: {
@@ -16,31 +16,29 @@ interface StudyRoomProps {
 }
 
 export const StudyRoom: React.FC<StudyRoomProps> = ({ room, isJoined, onPress }) => {
+  const { colors } = useTheme();
   const isFull = room.participants >= room.capacity;
   const occupancyPercent = (room.participants / room.capacity) * 100;
 
-  // Color de la barra según ocupación
   const barColor =
-    occupancyPercent >= 100 ? '#FF3B30' :
-    occupancyPercent >= 66  ? '#FF9500' : '#34C759';
+    occupancyPercent >= 100 ? colors.danger :
+    occupancyPercent >= 66  ? '#FF9500' : colors.success;
 
   return (
-    <View style={[styles.card, isJoined && styles.cardJoined]}>
+    <View style={[styles.card, { backgroundColor: colors.card }, isJoined && { borderColor: colors.primary }]}>
       <View style={styles.row}>
-        {/* Info principal */}
         <View style={styles.info}>
-          <Text style={styles.roomName}>{room.name}</Text>
-          <View style={styles.subjectBadge}>
-            <Text style={styles.subjectText}>{room.subject}</Text>
+          <Text style={[styles.roomName, { color: colors.text }]}>{room.name}</Text>
+          <View style={[styles.subjectBadge, { backgroundColor: colors.badgeBg }]}>
+            <Text style={[styles.subjectText, { color: colors.badgeText }]}>{room.subject}</Text>
           </View>
         </View>
 
-        {/* Botón */}
         <TouchableOpacity
           style={[
             styles.joinBtn,
-            isJoined ? styles.joinBtnLeave :
-            isFull   ? styles.joinBtnFull  : styles.joinBtnAvailable
+            isJoined ? { backgroundColor: colors.danger } :
+            isFull   ? { backgroundColor: colors.inactive }  : { backgroundColor: colors.primary }
           ]}
           onPress={onPress}
           disabled={isFull && !isJoined}
@@ -51,12 +49,11 @@ export const StudyRoom: React.FC<StudyRoomProps> = ({ room, isJoined, onPress })
         </TouchableOpacity>
       </View>
 
-      {/* Barra de ocupación */}
       <View style={styles.occupancyRow}>
-        <View style={styles.progressBar}>
+        <View style={[styles.progressBar, { backgroundColor: colors.border }]}>
           <View style={[styles.progressFill, { width: `${occupancyPercent}%`, backgroundColor: barColor }]} />
         </View>
-        <Text style={styles.occupancyText}>
+        <Text style={[styles.occupancyText, { color: colors.textTertiary }]}>
           {room.participants}/{room.capacity}
         </Text>
       </View>
@@ -66,7 +63,6 @@ export const StudyRoom: React.FC<StudyRoomProps> = ({ room, isJoined, onPress })
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 16,
     shadowColor: '#000',
@@ -76,9 +72,6 @@ const styles = StyleSheet.create({
     elevation: 2,
     borderWidth: 1.5,
     borderColor: 'transparent',
-  },
-  cardJoined: {
-    borderColor: '#007AFF',
   },
   row: {
     flexDirection: 'row',
@@ -93,18 +86,15 @@ const styles = StyleSheet.create({
   roomName: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1C1C1E',
     marginBottom: 6,
   },
   subjectBadge: {
     alignSelf: 'flex-start',
-    backgroundColor: '#E3F0FF',
     paddingHorizontal: 10,
     paddingVertical: 3,
     borderRadius: 10,
   },
   subjectText: {
-    color: '#007AFF',
     fontSize: 12,
     fontWeight: '600',
   },
@@ -114,15 +104,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     minWidth: 72,
     alignItems: 'center',
-  },
-  joinBtnAvailable: {
-    backgroundColor: '#007AFF',
-  },
-  joinBtnLeave: {
-    backgroundColor: '#FF3B30',
-  },
-  joinBtnFull: {
-    backgroundColor: '#C7C7CC',
   },
   joinBtnText: {
     color: '#FFFFFF',
@@ -137,7 +118,6 @@ const styles = StyleSheet.create({
   progressBar: {
     flex: 1,
     height: 6,
-    backgroundColor: '#E5E5EA',
     borderRadius: 3,
     overflow: 'hidden',
   },
@@ -147,7 +127,6 @@ const styles = StyleSheet.create({
   },
   occupancyText: {
     fontSize: 12,
-    color: '#8E8E93',
     fontWeight: '600',
     minWidth: 30,
     textAlign: 'right',

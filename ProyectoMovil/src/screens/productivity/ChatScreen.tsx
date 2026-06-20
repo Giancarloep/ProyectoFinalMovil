@@ -1,10 +1,10 @@
-// src/screens/productivity/ChatScreen.tsx
 import React, { useState, useRef } from 'react';
 import {
   View, Text, StyleSheet, FlatList,
   TextInput, TouchableOpacity, KeyboardAvoidingView,
   Platform, SafeAreaView,
 } from 'react-native';
+import { useTheme } from '../../context/ThemeContext';
 
 type Message = {
   id: string;
@@ -28,6 +28,7 @@ const MOCK_MESSAGES: Message[] = [
 ];
 
 export const ChatScreen = ({ route }: any) => {
+  const { colors } = useTheme();
   const roomName = route?.params?.roomName ?? 'Sala de Estudio';
   const [messages, setMessages] = useState<Message[]>(MOCK_MESSAGES);
   const [inputText, setInputText] = useState('');
@@ -48,7 +49,6 @@ export const ChatScreen = ({ route }: any) => {
     setMessages(prev => [...prev, newMessage]);
     setInputText('');
 
-    // Scroll al último mensaje
     setTimeout(() => {
       flatListRef.current?.scrollToEnd({ animated: true });
     }, 100);
@@ -57,18 +57,18 @@ export const ChatScreen = ({ route }: any) => {
   const renderMessage = ({ item }: { item: Message }) => (
     <View style={[styles.messageRow, item.isMe ? styles.messageRowMe : styles.messageRowOther]}>
       {!item.isMe && (
-        <View style={styles.avatar}>
+        <View style={[styles.avatar, { backgroundColor: colors.primary }]}>
           <Text style={styles.avatarText}>{item.sender.charAt(0)}</Text>
         </View>
       )}
-      <View style={[styles.bubble, item.isMe ? styles.bubbleMe : styles.bubbleOther]}>
+      <View style={[styles.bubble, item.isMe ? [styles.bubbleMe, { backgroundColor: colors.primary }] : [styles.bubbleOther, { backgroundColor: colors.card }]]}>
         {!item.isMe && (
-          <Text style={styles.senderName}>{item.sender}</Text>
+          <Text style={[styles.senderName, { color: colors.primary }]}>{item.sender}</Text>
         )}
         <Text style={[styles.messageText, item.isMe && styles.messageTextMe]}>
           {item.text}
         </Text>
-        <Text style={[styles.timeText, item.isMe && styles.timeTextMe]}>
+        <Text style={[styles.timeText, item.isMe && { color: 'rgba(255,255,255,0.7)' }, !item.isMe && { color: colors.textTertiary }]}>
           {item.time}
         </Text>
       </View>
@@ -76,17 +76,15 @@ export const ChatScreen = ({ route }: any) => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]}>
+      <View style={[styles.header, { backgroundColor: colors.headerBg }]}>
         <View style={styles.headerInfo}>
-          <Text style={styles.headerTitle}>{roomName}</Text>
+          <Text style={[styles.headerTitle, { color: colors.headerText }]}>{roomName}</Text>
           <View style={styles.onlineDot} />
-          <Text style={styles.headerSub}>{messages.length > 0 ? '3 participantes' : 'Sin mensajes'}</Text>
+          <Text style={[styles.headerSub, { color: 'rgba(255,255,255,0.8)' }]}>{messages.length > 0 ? '3 participantes' : 'Sin mensajes'}</Text>
         </View>
       </View>
 
-      {/* Mensajes */}
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -101,21 +99,20 @@ export const ChatScreen = ({ route }: any) => {
           onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: false })}
         />
 
-        {/* Input */}
-        <View style={styles.inputRow}>
+        <View style={[styles.inputRow, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: colors.surface, color: colors.text }]}
             value={inputText}
             onChangeText={setInputText}
             placeholder="Escribe un mensaje..."
-            placeholderTextColor="#999"
+            placeholderTextColor={colors.textTertiary}
             multiline
             maxLength={300}
             onSubmitEditing={handleSend}
             returnKeyType="send"
           />
           <TouchableOpacity
-            style={[styles.sendBtn, !inputText.trim() && styles.sendBtnDisabled]}
+            style={[styles.sendBtn, { backgroundColor: colors.primary }, !inputText.trim() && { backgroundColor: colors.inactive }]}
             onPress={handleSend}
             disabled={!inputText.trim()}
           >
@@ -130,13 +127,11 @@ export const ChatScreen = ({ route }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
   },
   flex: {
     flex: 1,
   },
   header: {
-    backgroundColor: '#007AFF',
     paddingHorizontal: 20,
     paddingVertical: 14,
     flexDirection: 'row',
@@ -150,7 +145,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#FFFFFF',
   },
   onlineDot: {
     width: 8,
@@ -160,7 +154,6 @@ const styles = StyleSheet.create({
   },
   headerSub: {
     fontSize: 13,
-    color: 'rgba(255,255,255,0.8)',
   },
   messagesList: {
     padding: 16,
@@ -182,7 +175,6 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#007AFF',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -198,22 +190,14 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   bubbleMe: {
-    backgroundColor: '#007AFF',
     borderBottomRightRadius: 4,
   },
   bubbleOther: {
-    backgroundColor: '#FFFFFF',
     borderBottomLeftRadius: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 3,
-    elevation: 1,
   },
   senderName: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#007AFF',
     marginBottom: 3,
   },
   messageText: {
@@ -226,42 +210,30 @@ const styles = StyleSheet.create({
   },
   timeText: {
     fontSize: 11,
-    color: '#8E8E93',
     marginTop: 4,
     alignSelf: 'flex-end',
-  },
-  timeTextMe: {
-    color: 'rgba(255,255,255,0.7)',
   },
   inputRow: {
     flexDirection: 'row',
     alignItems: 'flex-end',
     padding: 12,
     gap: 10,
-    backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
-    borderTopColor: '#E5E5EA',
   },
   input: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 10,
     fontSize: 15,
-    color: '#1C1C1E',
     maxHeight: 100,
   },
   sendBtn: {
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: '#007AFF',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  sendBtnDisabled: {
-    backgroundColor: '#C7C7CC',
   },
   sendBtnText: {
     color: '#FFFFFF',

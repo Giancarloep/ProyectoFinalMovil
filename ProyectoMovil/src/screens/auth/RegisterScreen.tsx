@@ -4,9 +4,11 @@ import { CustomInput } from '../../components/CustomInput';
 import { CustomButton } from '../../components/CustomButton';
 import { isRequiredValid, isEmailValid, isPhoneValid } from '../../utils/validations';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 
 export const RegisterScreen = ({ navigation }: any) => {
   const { register } = useAuth();
+  const { colors } = useTheme();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -82,9 +84,9 @@ export const RegisterScreen = ({ navigation }: any) => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-      <Text style={styles.title}>Study guide Resolution</Text>
-      <Text style={styles.subtitle}>Crea tu cuenta de estudiante</Text>
+    <ScrollView contentContainerStyle={[styles.container, { backgroundColor: colors.background }]} keyboardShouldPersistTaps="handled">
+      <Text style={[styles.title, { color: colors.primary }]}>Study guide Resolution</Text>
+      <Text style={[styles.subtitle, { color: colors.textTertiary }]}>Crea tu cuenta de estudiante</Text>
 
       <CustomInput
         label="Nombre completo"
@@ -141,7 +143,6 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
     padding: 24,
     paddingTop: 40,
     paddingBottom: 40,
@@ -149,12 +150,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#007AFF',
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 14,
-    color: '#666',
     marginBottom: 25,
   },
 });

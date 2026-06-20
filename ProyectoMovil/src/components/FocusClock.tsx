@@ -1,6 +1,6 @@
-// src/components/FocusClock.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
 
 interface FocusClockProps {
   durationMinutes: number;
@@ -13,12 +13,12 @@ export const FocusClock: React.FC<FocusClockProps> = ({
   mode,
   onComplete,
 }) => {
+  const { colors } = useTheme();
   const totalSeconds = durationMinutes * 60;
   const [secondsLeft, setSecondsLeft] = useState(totalSeconds);
   const [isRunning, setIsRunning] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Reiniciar cuando cambia la duración o el modo
   useEffect(() => {
     setSecondsLeft(totalSeconds);
     setIsRunning(false);
@@ -46,12 +46,9 @@ export const FocusClock: React.FC<FocusClockProps> = ({
 
   const minutes = Math.floor(secondsLeft / 60).toString().padStart(2, '0');
   const seconds = (secondsLeft % 60).toString().padStart(2, '0');
-  const progress = secondsLeft / totalSeconds; // 1 → 0
+  const progress = secondsLeft / totalSeconds;
 
-  // Círculo SVG-like con View
-  const SIZE = 200;
-  const STROKE = 10;
-  const activeColor = mode === 'focus' ? '#007AFF' : '#34C759';
+  const activeColor = mode === 'focus' ? colors.primary : colors.success;
 
   const handleReset = () => {
     setSecondsLeft(totalSeconds);
@@ -60,18 +57,16 @@ export const FocusClock: React.FC<FocusClockProps> = ({
 
   return (
     <View style={styles.wrapper}>
-      {/* Círculo de progreso simulado con border */}
-      <View style={[styles.circle, { borderColor: '#E5E5EA' }]}>
+      <View style={[styles.circle, { borderColor: colors.border }]}>
         <View style={[
           styles.progressArc,
           {
             borderColor: activeColor,
-            // Simulamos el progreso con opacidad para no requerir SVG
             opacity: 0.15 + (1 - progress) * 0.85,
           }
         ]} />
         <View style={styles.innerCircle}>
-          <Text style={styles.modeLabel}>
+          <Text style={[styles.modeLabel, { color: colors.textTertiary }]}>
             {mode === 'focus' ? '🎯 ENFOQUE' : '☕ DESCANSO'}
           </Text>
           <Text style={[styles.timeText, { color: activeColor }]}>
@@ -80,13 +75,12 @@ export const FocusClock: React.FC<FocusClockProps> = ({
         </View>
       </View>
 
-      {/* Controles */}
       <View style={styles.controls}>
         <TouchableOpacity
-          style={[styles.controlBtn, styles.resetBtn]}
+          style={[styles.controlBtn, { backgroundColor: colors.border }]}
           onPress={handleReset}
         >
-          <Text style={styles.resetBtnText}>↺ Reiniciar</Text>
+          <Text style={[styles.resetBtnText, { color: colors.textSecondary }]}>↺ Reiniciar</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -130,7 +124,6 @@ const styles = StyleSheet.create({
   modeLabel: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#8E8E93',
     letterSpacing: 1,
     marginBottom: 8,
   },
@@ -151,11 +144,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  resetBtn: {
-    backgroundColor: '#E5E5EA',
-  },
   resetBtnText: {
-    color: '#3A3A3C',
     fontWeight: '600',
     fontSize: 15,
   },

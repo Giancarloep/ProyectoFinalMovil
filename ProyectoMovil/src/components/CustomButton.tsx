@@ -1,6 +1,6 @@
-// src/components/CustomButton.tsx
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
 
 interface CustomButtonProps {
   title: string;
@@ -15,12 +15,13 @@ export const CustomButton: React.FC<CustomButtonProps> = ({
   disabled = false,
   loading = false,
 }) => {
+  const { colors } = useTheme();
+
   return (
     <TouchableOpacity
       style={[
         styles.button,
-        // ESTILO CONDICIONAL: Si está deshabilitado = gris, si está activo = azul
-        (disabled || loading) ? styles.buttonDisabled : styles.buttonActive
+        (disabled || loading) ? { backgroundColor: colors.inactive } : { backgroundColor: colors.primary }
       ]}
       onPress={onPress}
       disabled={disabled || loading}
@@ -44,12 +45,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  buttonActive: {
-    backgroundColor: '#007AFF',
-  },
-  buttonDisabled: {
-    backgroundColor: '#A7A7A7',
   },
   text: {
     color: '#FFFFFF',

@@ -2,6 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { MainTabParamList } from './types';
+import { useTheme } from '../context/ThemeContext';
 import { RoomsScreen } from '../screens/productivity/RoomsScreen';
 import { FocusScreen } from '../screens/productivity/FocusScreen';
 import { FlashcardsScreen } from '../screens/productivity/FlashcardsScreen';
@@ -17,14 +18,20 @@ const tabIcons: Record<keyof MainTabParamList, keyof typeof Ionicons.glyphMap> =
 };
 
 export const TabNavigator = () => {
+  const { colors } = useTheme();
+
   return (
     <Tab.Navigator
       initialRouteName="Profile"
       screenOptions={({ route }) => ({
-        tabBarActiveTintColor: '#007AFF',
-        tabBarInactiveTintColor: '#8E8E93',
-        headerStyle: { backgroundColor: '#007AFF' },
-        headerTintColor: '#FFFFFF',
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textTertiary,
+        tabBarStyle: {
+          backgroundColor: colors.tabBarBg,
+          borderTopColor: colors.tabBarBorder,
+        },
+        headerStyle: { backgroundColor: colors.headerBg },
+        headerTintColor: colors.headerText,
         headerTitleAlign: 'center',
         tabBarIcon: ({ color, size }) => (
           <Ionicons name={tabIcons[route.name]} size={size} color={color} />

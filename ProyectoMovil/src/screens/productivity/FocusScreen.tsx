@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { FocusClock } from '../../components/FocusClock';
+import { useTheme } from '../../context/ThemeContext';
 
 type Mode = 'focus' | 'break';
 
@@ -8,6 +9,7 @@ const MIN_MINUTES = 1;
 const MAX_MINUTES = 120;
 
 export const FocusScreen = () => {
+  const { colors } = useTheme();
   const [mode, setMode] = useState<Mode>('focus');
   const [sessionsCompleted, setSessionsCompleted] = useState(0);
   const [focusMinutes, setFocusMinutes] = useState(25);
@@ -34,21 +36,21 @@ export const FocusScreen = () => {
 
   if (!started) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.setupTitle}>Configura tu sesión</Text>
+      <View style={[styles.container, { backgroundColor: colors.surface }]}>
+        <Text style={[styles.setupTitle, { color: colors.text }]}>Configura tu sesión</Text>
 
-        <View style={styles.setupRow}>
-          <Text style={styles.setupLabel}>Tiempo de enfoque</Text>
+        <View style={[styles.setupRow, { backgroundColor: colors.card }]}>
+          <Text style={[styles.setupLabel, { color: colors.text }]}>Tiempo de enfoque</Text>
           <View style={styles.stepper}>
             <TouchableOpacity
-              style={styles.stepBtn}
+              style={[styles.stepBtn, { backgroundColor: colors.primary }]}
               onPress={() => adjustMinutes(setFocusMinutes, -5)}
             >
               <Text style={styles.stepBtnText}>−</Text>
             </TouchableOpacity>
-            <Text style={styles.stepValue}>{focusMinutes} min</Text>
+            <Text style={[styles.stepValue, { color: colors.text }]}>{focusMinutes} min</Text>
             <TouchableOpacity
-              style={styles.stepBtn}
+              style={[styles.stepBtn, { backgroundColor: colors.primary }]}
               onPress={() => adjustMinutes(setFocusMinutes, 5)}
             >
               <Text style={styles.stepBtnText}>+</Text>
@@ -56,18 +58,18 @@ export const FocusScreen = () => {
           </View>
         </View>
 
-        <View style={styles.setupRow}>
-          <Text style={styles.setupLabel}>Tiempo de descanso</Text>
+        <View style={[styles.setupRow, { backgroundColor: colors.card }]}>
+          <Text style={[styles.setupLabel, { color: colors.text }]}>Tiempo de descanso</Text>
           <View style={styles.stepper}>
             <TouchableOpacity
-              style={styles.stepBtn}
+              style={[styles.stepBtn, { backgroundColor: colors.primary }]}
               onPress={() => adjustMinutes(setBreakMinutes, -1)}
             >
               <Text style={styles.stepBtnText}>−</Text>
             </TouchableOpacity>
-            <Text style={styles.stepValue}>{breakMinutes} min</Text>
+            <Text style={[styles.stepValue, { color: colors.text }]}>{breakMinutes} min</Text>
             <TouchableOpacity
-              style={styles.stepBtn}
+              style={[styles.stepBtn, { backgroundColor: colors.primary }]}
               onPress={() => adjustMinutes(setBreakMinutes, 1)}
             >
               <Text style={styles.stepBtnText}>+</Text>
@@ -76,7 +78,7 @@ export const FocusScreen = () => {
         </View>
 
         <TouchableOpacity
-          style={styles.startBtn}
+          style={[styles.startBtn, { backgroundColor: colors.primary }]}
           onPress={() => setStarted(true)}
         >
           <Text style={styles.startBtnText}>Comenzar</Text>
@@ -86,9 +88,9 @@ export const FocusScreen = () => {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.surface }]}>
       {isLocked && (
-        <View style={styles.lockedBanner}>
+        <View style={[styles.lockedBanner, { backgroundColor: colors.textTertiary }]}>
           <Text style={styles.lockedBannerText}>
             Tiempos bloqueados — reinicia la app para cambiar
           </Text>
@@ -101,12 +103,12 @@ export const FocusScreen = () => {
             key={i}
             style={[
               styles.sessionDot,
-              i < (sessionsCompleted % 4) ? styles.sessionDotFilled : styles.sessionDotEmpty
+              i < (sessionsCompleted % 4) ? { backgroundColor: colors.primary } : { backgroundColor: colors.inactive }
             ]}
           />
         ))}
       </View>
-      <Text style={styles.sessionsLabel}>
+      <Text style={[styles.sessionsLabel, { color: colors.textTertiary }]}>
         {sessionsCompleted} {sessionsCompleted === 1 ? 'sesión completada' : 'sesiones completadas'}
       </Text>
 
@@ -116,11 +118,11 @@ export const FocusScreen = () => {
         onComplete={handleSessionEnd}
       />
 
-      <View style={styles.tipCard}>
-        <Text style={styles.tipTitle}>
+      <View style={[styles.tipCard, { backgroundColor: colors.card }]}>
+        <Text style={[styles.tipTitle, { color: colors.text }]}>
           {mode === 'focus' ? '🎯 Modo Enfoque' : '☕ Modo Descanso'}
         </Text>
-        <Text style={styles.tipText}>
+        <Text style={[styles.tipText, { color: colors.textSecondary }]}>
           {mode === 'focus'
             ? 'Silencia tu teléfono y evita redes sociales durante esta sesión.'
             : 'Levántate, estira los músculos y toma agua. ¡Te lo mereces!'}
@@ -133,7 +135,6 @@ export const FocusScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
     alignItems: 'center',
     paddingTop: 20,
     paddingHorizontal: 20,
@@ -141,7 +142,6 @@ const styles = StyleSheet.create({
   setupTitle: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#1C1C1E',
     marginBottom: 30,
     marginTop: 40,
   },
@@ -150,7 +150,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
-    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
@@ -163,7 +162,6 @@ const styles = StyleSheet.create({
   setupLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1C1C1E',
   },
   stepper: {
     flexDirection: 'row',
@@ -174,7 +172,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#007AFF',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -187,12 +184,10 @@ const styles = StyleSheet.create({
   stepValue: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1C1C1E',
     minWidth: 60,
     textAlign: 'center',
   },
   startBtn: {
-    backgroundColor: '#007AFF',
     paddingVertical: 16,
     paddingHorizontal: 60,
     borderRadius: 12,
@@ -204,7 +199,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   lockedBanner: {
-    backgroundColor: '#8E8E93',
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
@@ -225,19 +219,11 @@ const styles = StyleSheet.create({
     height: 14,
     borderRadius: 7,
   },
-  sessionDotFilled: {
-    backgroundColor: '#007AFF',
-  },
-  sessionDotEmpty: {
-    backgroundColor: '#C7C7CC',
-  },
   sessionsLabel: {
     fontSize: 13,
-    color: '#8E8E93',
     marginBottom: 10,
   },
   tipCard: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 16,
     width: '100%',
@@ -251,12 +237,10 @@ const styles = StyleSheet.create({
   tipTitle: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#1C1C1E',
     marginBottom: 6,
   },
   tipText: {
     fontSize: 13,
-    color: '#3A3A3C',
     lineHeight: 20,
   },
 });

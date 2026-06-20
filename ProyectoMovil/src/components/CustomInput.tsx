@@ -1,6 +1,6 @@
-// src/components/CustomInput.tsx
 import React, { useState } from 'react';
 import { View, TextInput, Text, StyleSheet, KeyboardTypeOptions } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
 
 interface CustomInputProps {
   label: string;
@@ -14,24 +14,27 @@ interface CustomInputProps {
 
 export const CustomInput: React.FC<CustomInputProps> = ({label,value,onChangeText,placeholder,secureTextEntry = false,
     keyboardType = 'default',
-    errorMessage,}) => {const [isFocused, setIsFocused] = useState(false);
+    errorMessage,}) => {
+  const { colors } = useTheme();
+  const [isFocused, setIsFocused] = useState(false);
+
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>{label}</Text>
-      
+      <Text style={[styles.label, { color: colors.text }]}>{label}</Text>
+
       <View
         style={[
           styles.inputContainer,
-          // ESTILO CONDICIONAL: Si hay error se pone rojo, si está enfocado se pone azul o esa es la idea por lo menos
-          errorMessage ? styles.borderError : isFocused ? styles.borderFocused : styles.borderDefault
+          { backgroundColor: colors.surface },
+          errorMessage ? { borderColor: colors.danger } : isFocused ? { borderColor: colors.primary } : { borderColor: colors.border }
         ]}
       >
         <TextInput
-          style={styles.input}
+          style={[styles.input, { color: colors.text }]}
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
-          placeholderTextColor="#999"
+          placeholderTextColor={colors.textTertiary}
           secureTextEntry={secureTextEntry}
           keyboardType={keyboardType}
           onFocus={() => setIsFocused(true)}
@@ -39,7 +42,7 @@ export const CustomInput: React.FC<CustomInputProps> = ({label,value,onChangeTex
         />
       </View>
 
-      {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+      {errorMessage ? <Text style={[styles.errorText, { color: colors.danger }]}>{errorMessage}</Text> : null}
     </View>
   );
 };
@@ -52,12 +55,10 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
     marginBottom: 5,
   },
   inputContainer: {
     height: 50,
-    backgroundColor: '#F5F5F5',
     borderRadius: 8,
     borderWidth: 1.5,
     flexDirection: 'row',
@@ -67,21 +68,9 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     height: '100%',
-    color: '#333',
     fontSize: 16,
   },
-  borderDefault: {
-    borderColor: '#E0E0E0',
-  },
-  borderFocused: {
-    borderColor: '#007AFF',
-  },
-  //errorMessage: Si hay un error, el borde se pone rojo
-  borderError: {
-    borderColor: '#FF3B30',
-  },
   errorText: {
-    color: '#FF3B30',
     fontSize: 12,
     marginTop: 4,
     fontWeight: '500',
