@@ -4,7 +4,9 @@ import {
   TextInput, TouchableOpacity, KeyboardAvoidingView,
   Platform, SafeAreaView,
 } from 'react-native';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useTheme } from '../../context/ThemeContext';
+import type { RoomsStackParamList } from '../../navigation/types';
 
 type Message = {
   id: string;
@@ -27,9 +29,11 @@ const MOCK_MESSAGES: Message[] = [
   { id: '5', text: 'Mejor empecemos con límites, es lo que más me cuesta', sender: 'Carlos', isMe: false, time: '09:05' },
 ];
 
-export const ChatScreen = ({ route }: any) => {
+type Props = NativeStackScreenProps<RoomsStackParamList, 'Chat'>;
+
+export const ChatScreen = ({ route }: Props) => {
   const { colors } = useTheme();
-  const roomName = route?.params?.roomName ?? 'Sala de Estudio';
+  const { roomName } = route.params;
   const [messages, setMessages] = useState<Message[]>(MOCK_MESSAGES);
   const [inputText, setInputText] = useState('');
   const flatListRef = useRef<FlatList>(null);

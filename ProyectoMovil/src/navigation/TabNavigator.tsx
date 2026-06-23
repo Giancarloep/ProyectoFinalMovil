@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { MainTabParamList } from './types';
 import { useTheme } from '../context/ThemeContext';
-import { RoomsScreen } from '../screens/productivity/RoomsScreen';
+import { RoomsStackNavigator } from './RoomsStackNavigator';
 import { FocusScreen } from '../screens/productivity/FocusScreen';
 import { FlashcardsScreen } from '../screens/productivity/FlashcardsScreen';
 import { ProfileScreen } from '../screens/profile/ProfileScreen';
@@ -38,7 +38,7 @@ export const TabNavigator = () => {
         ),
       })}
     >
-      <Tab.Screen name="Rooms" component={RoomsScreen} options={{ title: 'Salas' }} />
+      <Tab.Screen name="Rooms" component={RoomsStackNavigator} options={{ headerShown: false, title: 'Salas' }} />
       <Tab.Screen name="Focus" component={FocusScreen} options={{ title: 'Enfoque' }} />
       <Tab.Screen name="Flashcards" component={FlashcardsScreen} options={{ title: 'Repaso' }} />
       <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: 'Perfil' }} />

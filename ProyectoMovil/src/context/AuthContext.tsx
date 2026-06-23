@@ -1,39 +1,53 @@
 import React, { createContext, useState, useContext } from 'react';
+import { supabase } from '../lib/supabase';
 
-type User = {
+type UserProfile = {
+  id: string;
   name: string;
   email: string;
   phone: string;
-  password: string;
 };
 
 type AuthContextType = {
-  currentUser: Omit<User, 'password'> | null;
-  login: (email: string, phone: string, password: string) => boolean;
-  register: (name: string, email: string, phone: string, password: string) => boolean;
+  currentUser: UserProfile | null;
+  login: (email: string, phone: string, password: string) => Promise<boolean>;
+  register: (name: string, email: string, phone: string, password: string) => Promise<boolean>;
   logout: () => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [users, setUsers] = useState<User[]>([]);
-  const [currentUser, setCurrentUser] = useState<Omit<User, 'password'> | null>(null);
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
 
-  const login = (email: string, phone: string, password: string) => {
-    const user = users.find(u => u.email === email && u.phone === phone && u.password === password);
-    if (user) {
-      setCurrentUser({ name: user.name, email: user.email, phone: user.phone });
-      return true;
-    }
-    return false;
+  const login = async (email: string, phone: string, password: string) => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, name, email, phone')
+      .eq('email', email)
+      .eq('phone', phone)
+      .eq('password', password);
+
+    if (error) return false;
+    if (!data || data.length === 0) return false;
+
+    setCurrentUser(data[0]);
+    return true;
   };
 
-  const register = (name: string, email: string, phone: string, password: string) => {
-    const exists = users.some(u => u.email === email);
-    if (exists) return false;
-    setUsers(prev => [...prev, { name, email, phone, password }]);
-    return true;
+  const register = async (name: string, email: string, phone: string, password: string) => {
+    const { data: existing } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('email', email);
+
+    if (existing && existing.length > 0) return false;
+
+    const { error } = await supabase
+      .from('profiles')
+      .insert({ name, email, phone, password });
+
+    return !error;
   };
 
   const logout = () => setCurrentUser(null);

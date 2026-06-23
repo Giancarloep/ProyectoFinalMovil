@@ -15,8 +15,9 @@ export const LoginScreen = ({ navigation }: any) => {
   const [emailError, setEmailError] = useState('');
   const [phoneError, setPhoneError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     setEmailError('');
     setPhoneError('');
     setPasswordError('');
@@ -42,7 +43,9 @@ export const LoginScreen = ({ navigation }: any) => {
       isValid = false;
     }
     if (isValid) {
-      const success = login(email, phone, password);
+      setLoading(true);
+      const success = await login(email, phone, password);
+      setLoading(false);
       if (!success) {
         Alert.alert('Error', 'Credenciales incorrectas. ¿No tienes cuenta? Regístrate primero.');
       }
@@ -81,7 +84,7 @@ export const LoginScreen = ({ navigation }: any) => {
         errorMessage={passwordError}
       />
 
-      <CustomButton title="Iniciar Sesión" onPress={handleLogin} />
+      <CustomButton title="Iniciar Sesión" onPress={handleLogin} loading={loading} />
       <CustomButton
         title="¿No tienes cuenta? Regístrate"
         onPress={() => navigation.navigate('Register')}

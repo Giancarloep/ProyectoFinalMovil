@@ -40,6 +40,10 @@
         }
       ]
     ],
+    "extra": {
+      "supabaseUrl": "https://mmivsnripsciugkalivy.supabase.co",
+      "supabaseAnonKey": "sb_publishable_UQ_2MAXPZX7qUFERFspv_A_t_Y3gPll"
+    },
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true

@@ -1,4 +1,3 @@
-// src/hooks/useRooms.ts
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
@@ -10,6 +9,7 @@ export type Room = {
   capacity: number;
   participants: number;
   isActive: boolean;
+  createdBy: string;
 };
 
 export const useRooms = () => {
@@ -18,13 +18,16 @@ export const useRooms = () => {
   const [joinedRoom, setJoinedRoom] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const myCreatedRoom = currentUser
+    ? rooms.find(r => r.createdBy === currentUser.id && r.isActive) ?? null
+    : null;
+
   const fetchRooms = useCallback(async () => {
     setLoading(true);
 
-    // 1. Traer las salas
     const { data: roomsData, error: roomsError } = await supabase
       .from('rooms')
-      .select('id, name, subject, capacity, is_active');
+      .select('id, name, subject, capacity, is_active, created_by');
 
     if (roomsError) {
       console.log('Error cargando salas:', roomsError.message);
@@ -32,7 +35,6 @@ export const useRooms = () => {
       return;
     }
 
-    // 2. Traer todos los participantes de una vez
     const { data: participantsData, error: participantsError } = await supabase
       .from('room_participants')
       .select('room_id, user_id');
@@ -57,6 +59,7 @@ export const useRooms = () => {
       subject: r.subject,
       capacity: r.capacity,
       isActive: r.is_active,
+      createdBy: r.created_by,
       participants: counts[r.id] ?? 0,
     }));
 
@@ -73,7 +76,6 @@ export const useRooms = () => {
     if (!currentUser) return { error: 'No hay sesión activa' };
 
     if (joinedRoom === room.id) {
-      // salir de la sala
       const { error } = await supabase
         .from('room_participants')
         .delete()
@@ -89,7 +91,6 @@ export const useRooms = () => {
       return { error: 'full' };
     }
 
-    // si estaba en otra sala, sale primero
     if (joinedRoom) {
       await supabase
         .from('room_participants')
@@ -107,5 +108,39 @@ export const useRooms = () => {
     return { joined: true };
   };
 
-  return { rooms, joinedRoom, loading, joinRoom, refetch: fetchRooms };
+  const createRoom = async (name: string, subject: string, capacity: number) => {
+    if (!currentUser) return { error: 'No hay sesión activa' };
+
+    if (myCreatedRoom) {
+      return { error: 'already_created' };
+    }
+
+    if (joinedRoom) {
+      return { error: 'already_joined' };
+    }
+
+    const { error } = await supabase
+      .from('rooms')
+      .insert({ name, subject, capacity, created_by: currentUser.id });
+
+    if (error) return { error: error.message };
+    await fetchRooms();
+    return { success: true };
+  };
+
+  const closeRoom = async (roomId: string) => {
+    if (!currentUser) return { error: 'No hay sesión activa' };
+
+    const { error } = await supabase
+      .from('rooms')
+      .update({ is_active: false })
+      .eq('id', roomId)
+      .eq('created_by', currentUser.id);
+
+    if (error) return { error: error.message };
+    await fetchRooms();
+    return { success: true };
+  };
+
+  return { rooms, joinedRoom, myCreatedRoom, loading, joinRoom, createRoom, closeRoom, refetch: fetchRooms };
 };

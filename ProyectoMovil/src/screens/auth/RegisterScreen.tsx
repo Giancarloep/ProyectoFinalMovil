@@ -23,7 +23,7 @@ export const RegisterScreen = ({ navigation }: any) => {
 
   const [loading, setLoading] = useState(false);
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     setNameError('');
     setEmailError('');
     setPhoneError('');
@@ -67,19 +67,17 @@ export const RegisterScreen = ({ navigation }: any) => {
 
     if (isValid) {
       setLoading(true);
-      setTimeout(() => {
-        setLoading(false);
-        const success = register(name, email, phone, password);
-        if (success) {
-          Alert.alert(
-            '¡Cuenta creada!',
-            `Bienvenido a Study guide Resolution, ${name}. Ya puedes iniciar sesión.`,
-            [{ text: 'OK', onPress: () => navigation.navigate('Login') }]
-          );
-        } else {
-          Alert.alert('Error', 'Este correo electrónico ya está registrado.');
-        }
-      }, 1000);
+      const success = await register(name, email, phone, password);
+      setLoading(false);
+      if (success) {
+        Alert.alert(
+          '¡Cuenta creada!',
+          `Bienvenido a Study guide Resolution, ${name}. Ya puedes iniciar sesión.`,
+          [{ text: 'OK', onPress: () => navigation.navigate('Login') }]
+        );
+      } else {
+        Alert.alert('Error', 'Este correo electrónico ya está registrado.');
+      }
     }
   };
 
