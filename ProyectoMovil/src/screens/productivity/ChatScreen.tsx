@@ -1,11 +1,13 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View, Text, StyleSheet, FlatList,
   TextInput, TouchableOpacity, KeyboardAvoidingView,
-  Platform, SafeAreaView,
+  Platform, SafeAreaView, Alert,
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useTheme } from '../../context/ThemeContext';
+import { useAuth } from '../../context/AuthContext';
+import { supabase } from '../../lib/supabase';
 import type { RoomsStackParamList } from '../../navigation/types';
 
 type Message = {
@@ -16,46 +18,99 @@ type Message = {
   time: string;
 };
 
-const getTime = () => {
-  const now = new Date();
-  return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-};
-
-const MOCK_MESSAGES: Message[] = [
-  { id: '1', text: '¡Hola a todos! ¿Listos para estudiar Cálculo?', sender: 'María', isMe: false, time: '09:01' },
-  { id: '2', text: 'Sí! Alguien tiene los apuntes de la clase 5?', sender: 'Carlos', isMe: false, time: '09:02' },
-  { id: '3', text: 'Yo los tengo, los subo al drive ahora', sender: 'Yo', isMe: true, time: '09:03' },
-  { id: '4', text: 'Gracias! ¿Empezamos con los límites o derivadas?', sender: 'María', isMe: false, time: '09:04' },
-  { id: '5', text: 'Mejor empecemos con límites, es lo que más me cuesta', sender: 'Carlos', isMe: false, time: '09:05' },
-];
-
 type Props = NativeStackScreenProps<RoomsStackParamList, 'Chat'>;
 
 export const ChatScreen = ({ route }: Props) => {
   const { colors } = useTheme();
-  const { roomName } = route.params;
-  const [messages, setMessages] = useState<Message[]>(MOCK_MESSAGES);
+  const { currentUser } = useAuth();
+  const { roomId, roomName } = route.params;
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const flatListRef = useRef<FlatList>(null);
 
-  const handleSend = () => {
-    const text = inputText.trim();
-    if (!text) return;
+  useEffect(() => {
+    fetchMessages();
+    const channel = supabase
+      .channel(`room-${roomId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'room_messages',
+          filter: `room_id=eq.${roomId}`,
+        },
+        (payload) => {
+          const msg = payload.new as {
+            id: string;
+            text: string;
+            sender_name: string;
+            user_id: string;
+            created_at: string;
+          };
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: msg.id,
+              text: msg.text,
+              sender: msg.sender_name,
+              isMe: msg.user_id === currentUser?.id,
+              time: formatTime(msg.created_at),
+            },
+          ]);
+        }
+      )
+      .subscribe();
 
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      text,
-      sender: 'Yo',
-      isMe: true,
-      time: getTime(),
+    return () => {
+      supabase.removeChannel(channel);
     };
+  }, [roomId]);
 
-    setMessages(prev => [...prev, newMessage]);
+  const fetchMessages = async () => {
+    const { data, error } = await supabase
+      .from('room_messages')
+      .select('id, text, sender_name, user_id, created_at')
+      .eq('room_id', roomId)
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.log('Error cargando mensajes:', error.message);
+      return;
+    }
+
+    setMessages(
+      (data ?? []).map((msg) => ({
+        id: msg.id,
+        text: msg.text,
+        sender: msg.sender_name,
+        isMe: msg.user_id === currentUser?.id,
+        time: formatTime(msg.created_at),
+      }))
+    );
+  };
+
+  const formatTime = (timestamp: string) => {
+    const date = new Date(timestamp);
+    return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+  };
+
+  const handleSend = async () => {
+    const text = inputText.trim();
+    if (!text || !currentUser) return;
+
     setInputText('');
 
-    setTimeout(() => {
-      flatListRef.current?.scrollToEnd({ animated: true });
-    }, 100);
+    const { error } = await supabase.from('room_messages').insert({
+      room_id: roomId,
+      user_id: currentUser.id,
+      sender_name: currentUser.name,
+      text,
+    });
+
+    if (error) {
+      Alert.alert('Error', `No se pudo enviar el mensaje:\n${error.message}`);
+    }
   };
 
   const renderMessage = ({ item }: { item: Message }) => (
@@ -85,7 +140,9 @@ export const ChatScreen = ({ route }: Props) => {
         <View style={styles.headerInfo}>
           <Text style={[styles.headerTitle, { color: colors.headerText }]}>{roomName}</Text>
           <View style={styles.onlineDot} />
-          <Text style={[styles.headerSub, { color: 'rgba(255,255,255,0.8)' }]}>{messages.length > 0 ? '3 participantes' : 'Sin mensajes'}</Text>
+          <Text style={[styles.headerSub, { color: 'rgba(255,255,255,0.8)' }]}>
+            {messages.length > 0 ? `${messages.length} mensajes` : 'Sin mensajes'}
+          </Text>
         </View>
       </View>
 
